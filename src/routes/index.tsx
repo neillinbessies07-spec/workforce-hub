@@ -6,6 +6,7 @@ import { AttendanceTrendChart, LaborCostChart } from "@/components/dashboard/tre
 import { AlertsPanel } from "@/components/dashboard/alerts-panel";
 import { RosterTable } from "@/components/dashboard/roster-table";
 import { LiveFeed } from "@/components/dashboard/live-feed";
+import { AbsencePanel } from "@/components/dashboard/absence-panel";
 import { employees, laborBudget, OVERTIME_THRESHOLD, weeklyTrend } from "@/lib/workforce-data";
 
 const title = "ShiftOps — Manager Dashboard";
@@ -89,6 +90,10 @@ function Dashboard() {
       <section className="mt-4 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <RosterTable />
         <LiveFeed />
+      </section>
+
+      <section className="mt-4">
+        <AbsencePanel />
       </section>
     </div>
   );
