@@ -273,12 +273,24 @@ export function reviewPunch(id: string, status: Exclude<PunchStatus, "pending">,
   commit({ ...state, punches: next });
 }
 
+const upcomingCache = new WeakMap<StoreState, Map<string, Shift[]>>();
+
 export function upcomingShifts(s: StoreState, personId: string, limit = 5): Shift[] {
+  const key = `${personId}:${limit}`;
+  let perState = upcomingCache.get(s);
+  if (!perState) {
+    perState = new Map();
+    upcomingCache.set(s, perState);
+  }
+  const hit = perState.get(key);
+  if (hit) return hit;
   const today = isoDate(new Date());
-  return s.shifts
+  const value = s.shifts
     .filter((x) => x.personId === personId && x.date >= today)
     .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))
     .slice(0, limit);
+  perState.set(key, value);
+  return value;
 }
 
 export const statusTone: Record<PunchStatus, string> = {
