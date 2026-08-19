@@ -272,3 +272,88 @@ export const statusTone: Record<PunchStatus, string> = {
   approved: "bg-primary/15 text-primary",
   rejected: "bg-destructive/15 text-destructive",
 };
+
+/* ---------------- absence & leave ---------------- */
+
+export type LeaveKind = "annual" | "sick" | "family" | "unpaid" | "absent";
+export type LeaveStatus = "pending" | "approved" | "rejected";
+
+export type LeaveRequest = {
+  id: string;
+  personId: string;
+  name: string;
+  kind: LeaveKind;
+  from: string; // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
+  reason: string;
+  status: LeaveStatus;
+  createdAt: string;
+  reviewedAt: string | null;
+  loggedByManager: boolean;
+};
+
+export const leaveKindLabel: Record<LeaveKind, string> = {
+  annual: "Annual leave",
+  sick: "Sick leave",
+  family: "Family responsibility",
+  unpaid: "Unpaid leave",
+  absent: "Unplanned absence",
+};
+
+export const leaveStatusTone: Record<LeaveStatus, string> = {
+  pending: "bg-warning/15 text-warning",
+  approved: "bg-primary/15 text-primary",
+  rejected: "bg-destructive/15 text-destructive",
+};
+
+export function selectLeave(s: StoreState): LeaveRequest[] {
+  return [...(s.leave ?? [])].sort((a, b) => (b.from + b.createdAt).localeCompare(a.from + a.createdAt));
+}
+
+export function requestLeave(input: {
+  personId: string;
+  name: string;
+  kind: LeaveKind;
+  from: string;
+  to: string;
+  reason: string;
+  loggedByManager?: boolean;
+}): { ok: true } | { ok: false; error: string } {
+  ensureHydrated();
+  if (!input.personId) return { ok: false, error: "Pick an employee first." };
+  if (input.to < input.from) return { ok: false, error: "End date must be on or after the start date." };
+  const entry: LeaveRequest = {
+    id: crypto.randomUUID(),
+    personId: input.personId,
+    name: input.name,
+    kind: input.kind,
+    from: input.from,
+    to: input.to,
+    reason: input.reason.trim(),
+    // A manager logging an absence directly records it as settled.
+    status: input.loggedByManager ? "approved" : "pending",
+    createdAt: new Date().toISOString(),
+    reviewedAt: input.loggedByManager ? new Date().toISOString() : null,
+    loggedByManager: Boolean(input.loggedByManager),
+  };
+  commit({ ...state, leave: [entry, ...(state.leave ?? [])] });
+  return { ok: true };
+}
+
+export function reviewLeave(id: string, status: Exclude<LeaveStatus, "pending">) {
+  ensureHydrated();
+  const next = (state.leave ?? []).map((l) =>
+    l.id === id ? { ...l, status, reviewedAt: new Date().toISOString() } : l,
+  );
+  commit({ ...state, leave: next });
+}
+
+export function deleteLeave(id: string) {
+  ensureHydrated();
+  commit({ ...state, leave: (state.leave ?? []).filter((l) => l.id !== id) });
+}
+
+/** Approved leave/absence covering a given day. */
+export function leaveOn(s: StoreState, day: string): LeaveRequest[] {
+  return (s.leave ?? []).filter((l) => l.status === "approved" && l.from <= day && l.to >= day);
+}
