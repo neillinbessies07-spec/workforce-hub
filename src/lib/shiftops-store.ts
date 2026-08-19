@@ -150,7 +150,19 @@ function digest(pw: string) {
 
 export type Person = { id: string; name: string; role: string; site: string; isAccount: boolean };
 
-export function peopleFrom(s: StoreState): Person[] {
+/** Cache derived arrays per state object — useSyncExternalStore requires stable snapshots. */
+function memoBySnapshot<T>(fn: (s: StoreState) => T) {
+  const cache = new WeakMap<StoreState, T>();
+  return (s: StoreState): T => {
+    const hit = cache.get(s);
+    if (hit !== undefined) return hit;
+    const value = fn(s);
+    cache.set(s, value);
+    return value;
+  };
+}
+
+export const peopleFrom = memoBySnapshot(function peopleFrom(s: StoreState): Person[] {
   const accounts: Person[] = s.accounts.map((a) => ({
     id: a.id,
     name: a.name,
@@ -166,7 +178,7 @@ export function peopleFrom(s: StoreState): Person[] {
     isAccount: false,
   }));
   return [...accounts, ...roster];
-}
+});
 
 export function currentAccount(s: StoreState): Account | null {
   return s.accounts.find((a) => a.id === s.sessionId) ?? null;
@@ -308,9 +320,9 @@ export const leaveStatusTone: Record<LeaveStatus, string> = {
   rejected: "bg-destructive/15 text-destructive",
 };
 
-export function selectLeave(s: StoreState): LeaveRequest[] {
-  return [...(s.leave ?? [])].sort((a, b) => (b.from + b.createdAt).localeCompare(a.from + a.createdAt));
-}
+export const selectLeave = memoBySnapshot((s: StoreState): LeaveRequest[] =>
+  [...(s.leave ?? [])].sort((a, b) => (b.from + b.createdAt).localeCompare(a.from + a.createdAt)),
+);
 
 export function requestLeave(input: {
   personId: string;
