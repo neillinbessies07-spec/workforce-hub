@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as ClockRouteImport } from './routes/clock'
+import { Route as LeaveRouteImport } from './routes/leave'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const ClockRoute = ClockRouteImport.update({
   path: '/clock',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaveRoute = LeaveRouteImport.update({
+  id: '/leave',
+  path: '/leave',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScheduleRoute = ScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/approvals': typeof ApprovalsRoute
   '/clock': typeof ClockRoute
+  '/leave': typeof LeaveRoute
   '/schedule': typeof ScheduleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/approvals': typeof ApprovalsRoute
   '/clock': typeof ClockRoute
+  '/leave': typeof LeaveRoute
   '/schedule': typeof ScheduleRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/approvals': typeof ApprovalsRoute
   '/clock': typeof ClockRoute
+  '/leave': typeof LeaveRoute
   '/schedule': typeof ScheduleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/approvals' | '/clock' | '/schedule'
+  fullPaths: '/' | '/approvals' | '/clock' | '/leave' | '/schedule'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/approvals' | '/clock' | '/schedule'
-  id: '__root__' | '/' | '/approvals' | '/clock' | '/schedule'
+  to: '/' | '/approvals' | '/clock' | '/leave' | '/schedule'
+  id: '__root__' | '/' | '/approvals' | '/clock' | '/leave' | '/schedule'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApprovalsRoute: typeof ApprovalsRoute
   ClockRoute: typeof ClockRoute
+  LeaveRoute: typeof LeaveRoute
   ScheduleRoute: typeof ScheduleRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClockRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leave': {
+      id: '/leave'
+      path: '/leave'
+      fullPath: '/leave'
+      preLoaderRoute: typeof LeaveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/schedule': {
       id: '/schedule'
       path: '/schedule'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApprovalsRoute: ApprovalsRoute,
   ClockRoute: ClockRoute,
+  LeaveRoute: LeaveRoute,
   ScheduleRoute: ScheduleRoute,
 }
 export const routeTree = rootRouteImport
