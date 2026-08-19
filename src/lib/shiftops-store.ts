@@ -51,11 +51,12 @@ export type StoreState = {
   sessionId: string | null;
   shifts: Shift[];
   punches: Punch[];
+  leave: LeaveRequest[];
 };
 
 const KEY = "shiftops.state.v2";
 
-const empty: StoreState = { accounts: [], sessionId: null, shifts: [], punches: [] };
+const empty: StoreState = { accounts: [], sessionId: null, shifts: [], punches: [], leave: [] };
 
 let state: StoreState = empty;
 let hydrated = false;
@@ -72,6 +73,7 @@ function read(): StoreState {
       sessionId: parsed.sessionId ?? null,
       shifts: parsed.shifts ?? [],
       punches: parsed.punches ?? [],
+      leave: parsed.leave ?? [],
     };
   } catch {
     return empty;
