@@ -151,6 +151,13 @@ function AppHeader() {
             Approvals
           </Link>
           <Link
+            to="/employees"
+            className="hidden rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground sm:block"
+            activeProps={{ className: "bg-secondary text-foreground" }}
+          >
+            Employees
+          </Link>
+          <Link
             to="/leave"
             className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
             activeProps={{ className: "bg-secondary text-foreground" }}
